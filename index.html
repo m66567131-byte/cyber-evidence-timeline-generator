@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cyber Evidence Timeline Generator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: Arial, sans-serif;
+            background: #0b1220;
+            color: #e5e7eb;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        header {
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            color: #5eead4;
+            margin-bottom: 8px;
+        }
+
+        h2 {
+            color: #5eead4;
+            margin-top: 0;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+        }
+
+        .panel {
+            background: #111c2e;
+            border: 1px solid #263449;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 22px;
+        }
+
+        .upload-form {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        input[type="file"],
+        input[type="text"],
+        input[type="date"],
+        select {
+            background: #0b1220;
+            color: #e5e7eb;
+            border: 1px solid #475569;
+            border-radius: 7px;
+            padding: 11px;
+            min-width: 0;
+        }
+
+        input[type="file"] {
+            max-width: 100%;
+        }
+
+        button,
+        .button {
+            background: #0f766e;
+            color: white;
+            border: none;
+            padding: 11px 16px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        button:hover,
+        .button:hover {
+            background: #14b8a6;
+            color: #06201d;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .card {
+            border-radius: 12px;
+            padding: 22px;
+            border: 1px solid #334155;
+            background: #111c2e;
+            text-align: left;
+            color: #e5e7eb;
+            width: 100%;
+        }
+
+        .card-label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .card-number {
+            display: block;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .total-card {
+            border-top: 4px solid #38bdf8;
+        }
+
+        .normal-card {
+            border-top: 4px solid #22c55e;
+            background: #10291f;
+        }
+
+        .suspicious-card {
+            border-top: 4px solid #ef4444;
+            background: #351a23;
+        }
+
+        .normal-text {
+            color: #4ade80;
+        }
+
+        .suspicious-text {
+            color: #fb7185;
+        }
+
+        .filter-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .filter-form input[type="text"] {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: #0b1220;
+        }
+
+        thead th {
+            background: #1e293b !important;
+            color: #5eead4 !important;
+            padding: 13px;
+            text-align: left;
+            border: 1px solid #334155;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 11px;
+            border: 1px solid #334155;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+        }
+
+        /* NORMAL EVENTS - GREEN */
+        tr.normal-row td {
+            background-color: #12382c !important;
+            color: #bbf7d0 !important;
+        }
+
+        /* SUSPICIOUS EVENTS - RED */
+        tr.suspicious-row td {
+            background-color: #4a2028 !important;
+            color: #fecdd3 !important;
+        }
+
+        /* STATUS COLUMN - GREEN */
+        tr.normal-row td:last-child {
+            color: #4ade80 !important;
+            font-weight: bold;
+        }
+
+        /* STATUS COLUMN - RED */
+        tr.suspicious-row td:last-child {
+            color: #fb7185 !important;
+            font-weight: bold;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .legend-box {
+            display: inline-block;
+            width: 13px;
+            height: 13px;
+            border-radius: 3px;
+        }
+
+        .green-box {
+            background: #22c55e;
+        }
+
+        .red-box {
+            background: #ef4444;
+        }
+
+        .hash-value {
+            color: #a5f3fc;
+            overflow-wrap: anywhere;
+            font-family: monospace;
+        }
+
+        .note {
+            color: #94a3b8;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .secondary-button {
+            background: #334155;
+        }
+
+        .secondary-button:hover {
+            background: #475569;
+            color: white;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 12px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .panel {
+                padding: 15px;
+            }
+
+            .filter-form > input,
+            .filter-form > select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>🔍 Cyber Evidence Timeline Generator</h1>
+        <p class="subtitle">
+            Digital Forensic Investigation and Evidence Analysis
+        </p>
+    </header>
+
+    <!-- UPLOAD EVIDENCE -->
+    <section class="panel">
+        <h2>Upload Evidence File</h2>
+
+        <p class="note">
+            Upload a supported CSV or JSON evidence file to generate
+            a chronological timeline.
+        </p>
+
+        <form class="upload-form"
+              action="{{ url_for('index') }}"
+              method="POST"
+              enctype="multipart/form-data">
+
+            <input
+                type="file"
+                name="file"
+                accept=".csv,.json"
+                required
+            >
+
+            <button type="submit">
+                Upload & Analyze
+            </button>
+        </form>
+    </section>
+
+    <!-- SUMMARY CARDS -->
+    <section class="cards">
+
+        <div class="card total-card">
+            <span class="card-label">Total Events</span>
+            <span class="card-number">
+                {{ total_events | default(0) }}
+            </span>
+        </div>
+
+        <div class="card normal-card">
+            <span class="card-label normal-text">🟢 Normal Events</span>
+            <span class="card-number normal-text">
+                {{ normal_events | default(0) }}
+            </span>
+        </div>
+
+        <form action="{{ url_for('index') }}"
+              method="GET"
+              style="margin:0;">
+
+            <input type="hidden" name="search"
+                   value="{{ search | default('') }}">
+
+            <input type="hidden" name="from_date"
+                   value="{{ from_date | default('') }}">
+
+            <input type="hidden" name="to_date"
+                   value="{{ to_date | default('') }}">
+
+            <button type="submit"
+                    name="status_filter"
+                    value="suspicious"
+                    class="card suspicious-card">
+
+                <span class="card-label suspicious-text">
+                    🔴 Suspicious Events — Click to Filter
+                </span>
+
+                <span class="card-number suspicious-text">
+                    {{ suspicious_events | default(0) }}
+                </span>
+            </button>
+
+        </form>
+
+    </section>
+
+    <!-- EVENT TIMELINE -->
+    <section class="panel">
+
+        <h2>📊 Evidence Timeline</h2>
+
+        <div class="legend">
+            <span>
+                <span class="legend-box green-box"></span>
+                Normal Event
+            </span>
+
+            <span>
+                <span class="legend-box red-box"></span>
+                Suspicious Event — Review Required
+            </span>
+        </div>
+
+        <!-- SEARCH AND FILTER -->
+        <form action="{{ url_for('index') }}"
+              method="GET"
+              class="filter-form">
+
+            <input
+                type="text"
+                name="search"
+                placeholder="Search events, users, IPs..."
+                value="{{ search | default('') }}"
+            >
+
+            <input
+                type="date"
+                name="from_date"
+                aria-label="From date"
+                value="{{ from_date | default('') }}"
+            >
+
+            <input
+                type="date"
+                name="to_date"
+                aria-label="To date"
+                value="{{ to_date | default('') }}"
+            >
+
+            <select name="status_filter"
+                    aria-label="Filter by event status">
+
+                <option value="all"
+                    {% if status_filter | default('all') == 'all' %}
+                        selected
+                    {% endif %}>
+                    All Events
+                </option>
+
+                <option value="normal"
+                    {% if status_filter | default('all') == 'normal' %}
+                        selected
+                    {% endif %}>
+                    Normal Events
+                </option>
+
+                <option value="suspicious"
+                    {% if status_filter | default('all') == 'suspicious' %}
+                        selected
+                    {% endif %}>
+                    Suspicious Events
+                </option>
+
+            </select>
+
+            <button type="submit">Apply Filters</button>
+
+        </form>
+
+        <!-- TIMELINE TABLE -->
+        <div class="table-wrapper">
+            {{ data | safe }}
+        </div>
+
+        <div class="actions">
+
+            <a href="{{ url_for('index') }}"
+               class="button secondary-button">
+                Show All Events
+            </a>
+
+            <a href="{{ url_for('download_report') }}"
+               class="button">
+                Download PDF Report
+            </a>
+
+        </div>
+
+    </section>
+
+    <!-- EVIDENCE INTEGRITY -->
+    <section class="panel">
+
+        <h2>🔐 Evidence Integrity</h2>
+
+        <p>
+            <strong>SHA-256 Hash:</strong>
+        </p>
+
+        <p class="hash-value">
+            {{ sha256_hash | default('Upload an evidence file to calculate its hash.') }}
+        </p>
+
+        <p class="note">
+            SHA-256 helps identify changes to the uploaded file by comparing
+            its hash value. A matching hash supports integrity verification
+            between the compared files.
+        </p>
+
+    </section>
+
+    <!-- DISCLAIMER -->
+    <footer class="panel">
+        <h2>Important Note</h2>
+
+        <p class="note">
+            Suspicious events are identified using predefined rules.
+            A suspicious flag is an indicator for further investigation,
+            not proof of a confirmed cyberattack. Findings should be
+            validated by examining the underlying evidence.
+        </p>
+    </footer>
+
+</div>
+
+<!-- AUTOMATIC EVENT COLORING -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const tables = document.querySelectorAll(".table-wrapper table");
+
+    tables.forEach(function (table) {
+
+        const rows = table.querySelectorAll("tbody tr");
+
+        rows.forEach(function (row) {
+
+            const cells = row.querySelectorAll("td");
+
+            if (cells.length === 0) {
+                return;
+            }
+
+            // Read the status from the final column.
+            const status = cells[cells.length - 1]
+                .textContent
+                .trim()
+                .toLowerCase();
+
+            if (status.includes("suspicious")) {
+
+                row.classList.add("suspicious-row");
+
+            } else if (status.includes("normal")) {
+
+                row.classList.add("normal-row");
+
+            }
+
+        });
+
+    });
+
+});
+</script>
+
+</body>
+</html> 
